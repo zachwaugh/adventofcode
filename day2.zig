@@ -14,7 +14,11 @@ const Command = struct {
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     const commands = try loadData(allocator, "data/day2.txt");
+    puzzle1(commands);
+    puzzle2(commands);
+}
 
+fn puzzle1(commands: []const Command) void {
     var horizontal_position: u32 = 0;
     var depth: u32 = 0;
 
@@ -30,6 +34,26 @@ pub fn main() !void {
     std.debug.print("[Puzzle 1] horizontal position: {}, depth: {}, result: {}\n", .{ horizontal_position, depth, result });
 }
 
+fn puzzle2(commands: []const Command) void {
+    var aim: u32 = 0;
+    var horizontal_position: u32 = 0;
+    var depth: u32 = 0;
+
+    for (commands) |command| {
+        switch (command.direction) {
+            .up => aim -= command.distance,
+            .down => aim += command.distance,
+            .forward => {
+                horizontal_position += command.distance;
+                depth += aim * command.distance;
+            },
+        }
+    }
+
+    const result = horizontal_position * depth;
+    std.debug.print("[Puzzle 1] aim: {}, horizontal position: {}, depth: {}, result: {}\n", .{ aim, horizontal_position, depth, result });
+}
+
 fn loadData(allocator: *mem.Allocator, path: []const u8) ![]const Command {
     const input = try std.fs.cwd().readFileAlloc(allocator, path, 1024 * 1024);
     var iterator = mem.tokenize(u8, input, "\n");
@@ -41,10 +65,7 @@ fn loadData(allocator: *mem.Allocator, path: []const u8) ![]const Command {
         const direction = directionFromString(direction_part) orelse return DataError.InvalidData;
         const distance_part = parts.next() orelse return DataError.InvalidData;
         const distance = try std.fmt.parseInt(u32, distance_part, 10);
-        const command = Command{ 
-            .direction = direction, 
-            .distance = distance
-        };
+        const command = Command{ .direction = direction, .distance = distance };
         try commands.append(command);
     }
 
