@@ -2,19 +2,33 @@ const std = @import("std");
 const mem = std.mem;
 const fs = std.fs;
 
-/// Load an array of u32 from file at path
-/// TODO: make generic over type
-pub fn loadData(allocator: *mem.Allocator, path: []const u8) ![]const u32 {
+/// Read a file into an array of strings, each representing a line in the file
+pub fn readLines(allocator: *mem.Allocator, path: []const u8) ![][]const u8 {
     const input = try std.fs.cwd().readFileAlloc(allocator, path, 1024 * 1024);
-    var iterator = mem.tokenize(u8, input, "\n");
-    var data = std.ArrayList(u32).init(allocator);
+    defer allocator.free(input);
 
+    var list = std.ArrayList([]const u8).init(allocator);
+
+    var iterator = mem.tokenize(u8, input, "\n");
     while (iterator.next()) |value| {
-        const number = try std.fmt.parseInt(u32, value, 10);
-        try data.append(number);
+        try list.append(try allocator.dupe(u8, value));
     }
 
-    return data.items;
+    return list.toOwnedSlice();
+}
+
+test "read lines" {
+    const allocator = std.testing.allocator;
+    const lines = try readLines(allocator, "test/lines.txt");
+    defer {
+        for (lines) |line| {
+            allocator.free(line);
+        }
+        allocator.free(lines);
+    }
+
+    try std.testing.expect(lines.len == 3);
+    try std.testing.expect(std.mem.eql(u8, lines[0], "line1") == true);
 }
 
 /// Sum an array of integers
@@ -25,4 +39,11 @@ pub fn sum(array: []const u32) u32 {
     }
 
     return result;
+}
+
+test "sum" {
+    const numbers = [_]u32{ 1, 2, 3, 4, 5 };
+    const total = sum(&numbers);
+
+    try std.testing.expect(total == 15);
 }

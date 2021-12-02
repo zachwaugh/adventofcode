@@ -1,18 +1,19 @@
 // zig run day1.zig
 const std = @import("std");
+const mem = std.mem;
 const utils = @import("utils.zig");
 const sum = utils.sum;
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     const path = "data/day1.txt";
-    const data = try utils.loadData(allocator, path);
+    const data = try loadData(allocator, path);
     try puzzle1(data);
     try puzzle2(data);
 }
 
 fn puzzle1(data: []const u32) !void {
-    std.debug.print("[Puzzle 1] Processing {any} entries\n", .{data.len});
+    std.debug.print("[Day 1, Puzzle 1] Processing {any} entries\n", .{data.len});
 
     var previous: u32 = 0;
     var increases: u32 = 0;
@@ -33,11 +34,11 @@ fn puzzle1(data: []const u32) !void {
         previous = value;
     }
 
-    std.debug.print("[Puzzle 1] Increases: {d}, decreases: {d}\n", .{ increases, decreases });
+    std.debug.print("[Day 1, Puzzle 1] Increases: {d}, decreases: {d}\n", .{ increases, decreases });
 }
 
 fn puzzle2(data: []const u32) !void {
-    std.debug.print("[Puzzle 2] Processing {any} entries\n", .{data.len});
+    std.debug.print("[Day 1, Puzzle 2] Processing {any} entries\n", .{data.len});
 
     var increases: u32 = 0;
     var decreases: u32 = 0;
@@ -57,5 +58,20 @@ fn puzzle2(data: []const u32) !void {
         }
     }
 
-    std.debug.print("[Puzzle 2] Increases: {d}, decreases: {d}\n", .{ increases, decreases });
+    std.debug.print("[Day 1, Puzzle 2] Increases: {d}, decreases: {d}\n", .{ increases, decreases });
+}
+
+/// Load an array of u32 from file at path
+fn loadData(allocator: *mem.Allocator, path: []const u8) ![]const u32 {
+    const lines = try utils.readLines(allocator, path);
+    defer allocator.free(lines);
+
+    var data = std.ArrayList(u32).init(allocator);
+
+    for (lines) |line| {
+        const number = try std.fmt.parseInt(u32, line, 10);
+        try data.append(number);
+    }
+    
+    return data.items;
 }
