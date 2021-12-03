@@ -22,7 +22,7 @@ fn puzzle1(entries: []const u32) !void {
 
     const epsilon: u32 = gamma ^ (math.pow(u32, 2, bits) - 1);
     const power_consumption = epsilon * gamma;
-    std.debug.print("[Day 3, Puzzle 1] gamma: {}, epsilon: {}, power consumption: {}\n", .{ gamma, epsilon, power_consumption });
+    std.debug.print("[Day 3/Puzzle 1] gamma: {}, epsilon: {}, power consumption: {}\n", .{ gamma, epsilon, power_consumption });
 }
 
 fn puzzle2(entries: []const u32) !void {
@@ -56,7 +56,7 @@ fn puzzle2(entries: []const u32) !void {
     const co2_scrubber: u32 = co2_entries[0];
 
     const life_support = oxygen_generator * co2_scrubber;
-    std.debug.print("[Day 3, Puzzle 2] oxygen generator rating: {}, CO2 scrubber rating: {}, life support: {}\n", .{ oxygen_generator, co2_scrubber, life_support });
+    std.debug.print("[Day 3/Puzzle 2] oxygen generator rating: {}, CO2 scrubber rating: {}, life support: {}\n", .{ oxygen_generator, co2_scrubber, life_support });
 }
 
 fn most_common_bit(numbers: []const u32, place: u5) u32 {

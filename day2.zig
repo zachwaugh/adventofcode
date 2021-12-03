@@ -32,7 +32,7 @@ fn puzzle1(commands: []const Command) void {
     }
 
     const result = horizontal_position * depth;
-    std.debug.print("[Day 2, Puzzle 1] horizontal position: {}, depth: {}, result: {}\n", .{ horizontal_position, depth, result });
+    std.debug.print("[Day 2/Puzzle 1] horizontal position: {}, depth: {}, result: {}\n", .{ horizontal_position, depth, result });
 }
 
 fn puzzle2(commands: []const Command) void {
@@ -52,7 +52,7 @@ fn puzzle2(commands: []const Command) void {
     }
 
     const result = horizontal_position * depth;
-    std.debug.print("[Day 2, Puzzle 2] aim: {}, horizontal position: {}, depth: {}, result: {}\n", .{ aim, horizontal_position, depth, result });
+    std.debug.print("[Day 2/Puzzle 2] aim: {}, horizontal position: {}, depth: {}, result: {}\n", .{ aim, horizontal_position, depth, result });
 }
 
 fn loadData(allocator: *mem.Allocator, path: []const u8) ![]const Command {

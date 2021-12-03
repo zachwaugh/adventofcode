@@ -34,11 +34,11 @@ fn puzzle1(data: []const u32) !void {
         previous = value;
     }
 
-    std.debug.print("[Day 1, Puzzle 1] Increases: {d}, decreases: {d}\n", .{ increases, decreases });
+    std.debug.print("[Day 1/Puzzle 1] Increases: {d}, decreases: {d}\n", .{ increases, decreases });
 }
 
 fn puzzle2(data: []const u32) !void {
-    std.debug.print("[Day 1, Puzzle 2] Processing {any} entries\n", .{data.len});
+    std.debug.print("[Day 1/Puzzle 2] Processing {any} entries\n", .{data.len});
 
     var increases: u32 = 0;
     var decreases: u32 = 0;
