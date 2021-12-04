@@ -7,6 +7,7 @@ const allocator = std.heap.page_allocator;
 const Board = struct {
     numbers: []const []const u8,
     markers: [5][5]bool = [5][5]bool{ [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false } },
+    won: bool = false,
 
     fn mark_number(self: *Board, called_number: u8) void {
         for (self.numbers) |row, row_index| {
@@ -70,7 +71,7 @@ const Data = struct { numbers: []const u8, boards: []Board };
 pub fn main() !void {
     const data = try loadData("data/day4.txt");
     try puzzle1(data);
-    try puzzle2();
+    try puzzle2(data);
 }
 
 fn puzzle1(data: Data) !void {
@@ -83,7 +84,7 @@ fn puzzle1(data: Data) !void {
 
             if (board.is_bingo()) {
                 const unmarked = utils.sum(board.unmarked_numbers());
-                std.debug.print("[Day 4/Puzzle 1] Bingo!: {d}\n", .{ unmarked * number });
+                std.debug.print("[Day 4/Puzzle 1] Bingo!: {d}\n", .{unmarked * number});
                 bingo = true;
                 break;
             }
@@ -95,7 +96,27 @@ fn puzzle1(data: Data) !void {
     }
 }
 
-fn puzzle2() !void {
+fn puzzle2(data: Data) !void {
+    var bingos: u32 = 0;
+
+    for (data.numbers) |number| {
+        for (data.boards) |_, index| {
+            data.boards[index].mark_number(number);
+            const board = data.boards[index];
+
+            if (!board.won and board.is_bingo()) {
+                data.boards[index].won = true;
+                const unmarked = utils.sum(board.unmarked_numbers());
+                bingos += 1;
+
+                if (bingos == data.boards.len) {
+                    std.debug.print("[Day 4/Puzzle 2] final bingo called for number: {d}, answer: {d}\n", .{ number, unmarked * number });
+                    break;
+                }
+            }
+        }
+    }
+
     std.debug.print("[Day 4/Puzzle 2] not implemented\n", .{});
 }
 
