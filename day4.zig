@@ -5,27 +5,31 @@ const utils = @import("utils.zig");
 const allocator = std.heap.page_allocator;
 
 const Board = struct {
-    numbers: []const []const u8,
-    markers: [5][5]bool = [5][5]bool{ [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false }, [_]bool{ false, false, false, false, false } },
+    squares: [5][5]Square,
     won: bool = false,
 
+    const Square = struct{
+        number: u8,
+        called: bool = false
+    };
+
     fn mark_number(self: *Board, called_number: u8) void {
-        for (self.numbers) |row, row_index| {
-            for (row) |number, column_index| {
-                if (number == called_number) {
-                    self.markers[row_index][column_index] = true;
+        for (self.squares) |row, row_index| {
+            for (row) |square, column_index| {
+                if (square.number == called_number) {
+                    self.squares[row_index][column_index].called = true;
                 }
             }
         }
     }
 
-    fn is_bingo(self: Board) bool {
+    fn has_bingo(self: Board) bool {
         // Check rows
-        for (self.markers) |row| {
+        for (self.squares) |row| {
             var bingo = true;
 
-            for (row) |value, column_index| {
-                bingo = bingo and value;
+            for (row) |square, column_index| {
+                bingo = bingo and square.called;
 
                 if (column_index == 4 and bingo) {
                     return true;
@@ -38,8 +42,8 @@ const Board = struct {
             var bingo = true;
 
             for ([_]u8{ 0, 1, 2, 3, 4 }) |row_index| {
-                const value = self.markers[row_index][column_index];
-                bingo = bingo and value;
+                const square = self.squares[row_index][column_index];
+                bingo = bingo and square.called;
 
                 if (bingo and row_index == 4) {
                     return true;
@@ -54,10 +58,10 @@ const Board = struct {
         var unmarked = std.ArrayList(u32).init(allocator);
         defer unmarked.deinit();
 
-        for (self.numbers) |row, row_index| {
-            for (row) |number, column_index| {
-                if (!self.markers[row_index][column_index]) {
-                    unmarked.append(number) catch unreachable;
+        for (self.squares) |row| {
+            for (row) |square| {
+                if (!square.called) {
+                    unmarked.append(square.number) catch unreachable;
                 }
             }
         }
@@ -75,23 +79,16 @@ pub fn main() !void {
 }
 
 fn puzzle1(data: Data) !void {
-    var bingo = false;
-
     for (data.numbers) |number| {
         for (data.boards) |_, index| {
             data.boards[index].mark_number(number);
             const board = data.boards[index];
 
-            if (board.is_bingo()) {
+            if (board.has_bingo()) {
                 const unmarked = utils.sum(board.unmarked_numbers());
-                std.debug.print("[Day 4/Puzzle 1] Bingo!: {d}\n", .{unmarked * number});
-                bingo = true;
-                break;
+                std.debug.print("[Day 4/Puzzle 1] Bingo! number: {d}, answer: {d}\n", .{ number, unmarked * number });
+                return;
             }
-        }
-
-        if (bingo) {
-            break;
         }
     }
 }
@@ -100,24 +97,24 @@ fn puzzle2(data: Data) !void {
     var bingos: u32 = 0;
 
     for (data.numbers) |number| {
-        for (data.boards) |_, index| {
-            data.boards[index].mark_number(number);
-            const board = data.boards[index];
+        for (data.boards) |board, index| {
+            if (board.won) continue;
 
-            if (!board.won and board.is_bingo()) {
+            data.boards[index].mark_number(number);
+            const updated_board = data.boards[index];
+
+            if (updated_board.has_bingo()) {
                 data.boards[index].won = true;
-                const unmarked = utils.sum(board.unmarked_numbers());
                 bingos += 1;
 
                 if (bingos == data.boards.len) {
-                    std.debug.print("[Day 4/Puzzle 2] final bingo called for number: {d}, answer: {d}\n", .{ number, unmarked * number });
-                    break;
+                    const unmarked = utils.sum(updated_board.unmarked_numbers());
+                    std.debug.print("[Day 4/Puzzle 2] Final bingo! number: {d}, answer: {d}\n", .{ number, unmarked * number });
+                    return;
                 }
             }
         }
     }
-
-    std.debug.print("[Day 4/Puzzle 2] not implemented\n", .{});
 }
 
 fn loadData(path: []const u8) !Data {
@@ -142,7 +139,8 @@ fn loadData(path: []const u8) !Data {
         }
 
         if (rows.items.len == 5) {
-            const board = Board{ .numbers = rows.toOwnedSlice() };
+            const squares = rowsToSquares(rows.toOwnedSlice());
+            const board = Board{ .squares = squares };
             try boards.append(board);
             // TODO: can I clear instead of creating a new one?
             rows = std.ArrayList([]const u8).init(allocator);
@@ -176,4 +174,16 @@ fn parseBingoRow(line: []const u8) ![]u8 {
     }
 
     return list.toOwnedSlice();
+}
+
+fn rowsToSquares(rows: []const []const u8) [5][5]Board.Square {
+    var squares: [5][5]Board.Square = undefined;
+
+    for (rows) |row, row_index| {
+        for (row) |number, column_index| {
+            squares[row_index][column_index] = Board.Square{ .number = number };
+        }
+    }
+
+    return squares;
 }
