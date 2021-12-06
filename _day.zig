@@ -3,6 +3,7 @@ const mem = std.mem;
 const math = std.math;
 const utils = @import("utils.zig");
 const allocator = std.heap.page_allocator;
+const print = @import("std").debug.print;
 
 pub fn main() !void {
     //const entries = try loadData("data/dayN.txt");
@@ -11,11 +12,11 @@ pub fn main() !void {
 }
 
 fn puzzle1() !void {
-    std.debug.print("[Day N/Puzzle 1] not implemented\n", .{});
+    print("[Day N/Puzzle 1] not implemented\n", .{});
 }
 
 fn puzzle2() !void {
-    std.debug.print("[Day N/Puzzle 2] not implemented\n", .{});
+    print("[Day N/Puzzle 2] not implemented\n", .{});
 }
 
 fn loadData(path: []const u8) !void {
