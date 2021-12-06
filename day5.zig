@@ -5,38 +5,73 @@ const utils = @import("utils.zig");
 const allocator = std.heap.page_allocator;
 
 pub fn main() !void {
-    const lineSegments = try loadData("data/test.txt");
+    const lineSegments = try loadData("data/day5.txt");
     try puzzle1(lineSegments);
-    try puzzle2();
+    try puzzle2(lineSegments);
 }
 
+// Answer:
+// Test: 5
+// Input: 5608
 fn puzzle1(lineSegments: []const LineSegment) !void {
     std.debug.print("[Day 5/Puzzle 1] processing {d} line segments\n", .{lineSegments.len});
     var hashMap = std.AutoHashMap(Point, u32).init(allocator);
     defer hashMap.deinit();
 
-    // For each line segment
-    for (lineSegments) |line, index| {
+    for (lineSegments) |line| {
         if (line.isDiagonal()) continue;
 
-        for (lineSegments) |other, other_index| {
-            if (index == other_index or other.isDiagonal()) continue;
+        const points = line.all_points();
 
-            if (line.overlappingPoints(other)) |points| {
-                for (points) |point| {
-                    if (hashMap.get(point) == null) {
-                        try hashMap.put(point, 1);
-                    }
-                }
+        for (points) |point| {
+            if (hashMap.get(point)) |count| {
+                try hashMap.put(point, count + 1);
+            } else {
+                try hashMap.put(point, 1);
             }
         }
     }
 
-    std.debug.print("[Day 5/Puzzle 1] overlap points: {d}\n", .{hashMap.count()});
+    var iterator = hashMap.valueIterator();
+    var total: u32 = 0;
+    while (iterator.next()) |count| {
+        if (count.* > 1) {
+            total += 1;
+        }
+    }
+
+    std.debug.print("[Day 5/Puzzle 1] overlap points: {d}\n", .{total});
 }
 
-fn puzzle2() !void {
-    std.debug.print("[Day 5/Puzzle 2] not implemented\n", .{});
+// Answer
+// Test: 12
+// Input: 20299
+fn puzzle2(lineSegments: []LineSegment) !void {
+    std.debug.print("[Day 5/Puzzle 2] processing {d} line segments\n", .{lineSegments.len});
+    var hashMap = std.AutoHashMap(Point, u32).init(allocator);
+    defer hashMap.deinit();
+
+    for (lineSegments) |line| {
+        const points = line.all_points();
+
+        for (points) |point| {
+            if (hashMap.get(point)) |count| {
+                try hashMap.put(point, count + 1);
+            } else {
+                try hashMap.put(point, 1);
+            }
+        }
+    }
+
+    var iterator = hashMap.valueIterator();
+    var total: u32 = 0;
+    while (iterator.next()) |count| {
+        if (count.* > 1) {
+            total += 1;
+        }
+    }
+
+    std.debug.print("[Day 5/Puzzle 2] overlap points: {d}\n", .{total});
 }
 
 fn loadData(path: []const u8) ![]LineSegment {
@@ -122,117 +157,99 @@ const LineSegment = struct {
         return !self.isVertical() and !self.isHorizontal();
     }
 
-    fn isColinear(self: LineSegment, other: LineSegment) bool {
-        return (self.isVertical() and other.isVertical()) or (self.isHorizontal() and other.isHorizontal());
+    fn isDownwardDiagonal(self: LineSegment) bool {
+        return (self.xRange().start == self.start.x and self.start.y > self.end.y) or (self.xRange().start == self.end.x and self.end.y > self.start.y);
     }
 
-    fn isParallel(self: LineSegment, other: LineSegment) bool {
-        if (self.isHorizontal() and other.isHorizontal() and self.start.y != other.start.y) {
-            return true;
-        }
-
-        if (self.isVertical() and other.isVertical() and self.start.x != other.start.x) {
-            return true;
-        }
-
-        return false;
-    }
-
-    fn intersects(self: LineSegment, other: LineSegment) bool {
-        if (self.isParallel(other) or self.isColinear(other)) {
-            return false;
-        }
-
-        // Perpendicular, check for overlap
-        if (self.isVertical()) {
-            return self.intersectsVertical(other);
-        } else {
-            return other.intersectsVertical(self);
-        }
-
-        return false;
-    }
-
-    // When this line is vertical and other line is horizontal
-    fn intersectsVertical(self: LineSegment, other: LineSegment) bool {
-        std.debug.assert(self.isVertical());
-        std.debug.assert(other.isHorizontal());
-
-        const intersects_y_axis = self.yRange().contains(other.start.y);
-        const intersects_x_axis = other.xRange().contains(self.start.x);
-        return intersects_y_axis and intersects_x_axis;
-    }
-
-    fn intersectionPoint(self: LineSegment, other: LineSegment) Point {
-        if (self.isVertical()) {
-            return Point{ .x = self.start.x, .y = other.start.y };
-        } else {
-            return Point{ .x = other.start.x, .y = self.start.y };
-        }
-    }
-
-    fn isOverlapping(self: LineSegment, other: LineSegment) bool {
-        if (!self.isColinear(other)) {
-            return false;
-        }
-
-        if (self.isHorizontal() and other.isHorizontal()) {
-            return self.xRange().overlaps(other.xRange()) or other.xRange().overlaps(self.xRange());
-        }
-
-        if (self.isVertical() and other.isVertical()) {
-            return self.yRange().overlaps(other.yRange()) or other.yRange().overlaps(self.yRange());
-        }
-
-        return false;
-    }
-
-    fn overlappingPoints(self: LineSegment, other: LineSegment) ?[]Point {
-        if (self.isParallel(other)) {
-            return null;
-        }
-
-        if (self.isOverlapping(other)) {
-            return self.overlappingColinearPoints(other);
-        } else if (self.intersects(other)) {
-            return &[1]Point{self.intersectionPoint(other)};
-        } else {
-            return null;
-        }
-    }
-
-    fn overlappingColinearPoints(self: LineSegment, other: LineSegment) []Point {
-        std.debug.assert(self.isColinear(other));
-
+    fn all_points(self: LineSegment) []Point {
         if (self.isHorizontal()) {
-            const range = self.xRange().overlapRange(other.xRange());
-            const y = self.start.y;
-            var points = std.ArrayList(Point).init(allocator);
-            defer points.deinit();
-
-            var x = range.start;
-            while (x <= range.end) {
-                const point = Point{ .x = x, .y = y };
-                points.append(point) catch unreachable;
-                x += 1;
-            }
-
-            return points.toOwnedSlice();
+            return self.horizontalPoints();
+        } else if (self.isVertical()) {
+            return self.verticalPoints();
         } else {
-            const range = self.yRange().overlapRange(other.yRange());
-            const x = self.start.x;
-            var points = std.ArrayList(Point).init(allocator);
-            defer points.deinit();
+            return self.diagonalPoints();
+        }
+    }
 
-            var y = range.start;
-            while (y <= range.end) {
-                const point = Point{ .x = x, .y = y };
-                points.append(point) catch unreachable;
-                y += 1;
+    fn horizontalPoints(self: LineSegment) []Point {
+        const range = self.xRange();
+        const y = self.start.y;
+        var points = std.ArrayList(Point).init(allocator);
+        defer points.deinit();
+
+        var x = range.start;
+        while (x <= range.end) {
+            const point = Point{ .x = x, .y = y };
+            points.append(point) catch unreachable;
+            x += 1;
+        }
+
+        return points.toOwnedSlice();
+    }
+
+    fn verticalPoints(self: LineSegment) []Point {
+        const range = self.yRange();
+        const x = self.start.x;
+        var points = std.ArrayList(Point).init(allocator);
+        defer points.deinit();
+
+        var y = range.start;
+        while (y <= range.end) {
+            const point = Point{ .x = x, .y = y };
+            points.append(point) catch unreachable;
+            y += 1;
+        }
+
+        return points.toOwnedSlice();
+    }
+
+    fn diagonalPoints(self: LineSegment) []Point {
+        if (self.isDownwardDiagonal()) {
+            return self.diagonalDownwardPoints();
+        } else {
+            return self.diagonalUpwardPoints();
+        }
+    }
+
+    fn diagonalUpwardPoints(self: LineSegment) []Point {
+        const x_range = self.xRange();
+        const y_range = self.yRange();
+        var points = std.ArrayList(Point).init(allocator);
+        defer points.deinit();
+
+        var x = x_range.start;
+        var y = y_range.start;
+
+        while (x <= x_range.end) {
+            const point = Point{ .x = x, .y = y };
+            points.append(point) catch unreachable;
+            y += 1;
+            x += 1;
+        }
+
+        return points.toOwnedSlice();
+    }
+
+    fn diagonalDownwardPoints(self: LineSegment) []Point {
+        const x_range = self.xRange();
+        var points = std.ArrayList(Point).init(allocator);
+        defer points.deinit();
+
+        var x = x_range.start;
+        var y = math.max(self.start.y, self.end.y);
+
+        while (x <= x_range.end) {
+            const point = Point{ .x = x, .y = y };
+            points.append(point) catch unreachable;
+
+            if (y > 0) {
+                y -= 1;
             }
 
-            return points.toOwnedSlice();
+            x += 1;
         }
+
+        return points.toOwnedSlice();
     }
 };
 
@@ -253,134 +270,12 @@ test "LineSegment: vertical/horizontal" {
     try std.testing.expect(line3.isHorizontal() == false);
 }
 
-test "LineSegment: intersects" {
-    const point1 = Point{ .x = 0, .y = 0 };
-    const point2 = Point{ .x = 0, .y = 4 };
-    const point3 = Point{ .x = 10, .y = 4 };
-
-    // Vertical
-    const line1 = LineSegment{ .start = point1, .end = point2 };
-
-    // Horizontal
-    const line2 = LineSegment{ .start = point2, .end = point3 };
-
-    try std.testing.expect(line1.intersects(line2));
-}
-
-test "LineSegment: isParallel" {
-    const line1 = LineSegment{ .start = Point{ .x = 0, .y = 0 }, .end = Point{ .x = 10, .y = 0 } };
-    const line2 = LineSegment{ .start = Point{ .x = 2, .y = 4 }, .end = Point{ .x = 6, .y = 4 } };
-    try std.testing.expect(line1.isParallel(line2));
-    try std.testing.expect(line2.isParallel(line1));
-
-    const line3 = LineSegment{ .start = Point{ .x = 0, .y = 9 }, .end = Point{ .x = 5, .y = 9 } };
-    const line4 = LineSegment{ .start = Point{ .x = 3, .y = 4 }, .end = Point{ .x = 1, .y = 4 } };
-    try std.testing.expect(line3.isParallel(line4));
-    try std.testing.expect(line4.isParallel(line3));
-}
-
 const Point = struct {
     x: u32,
-    y: u32,
-
-    fn isEqual(self: Point, other: Point) bool {
-        return self.x == other.x and self.y == other.y;
-    }
+    y: u32
 };
 
 const Range = struct {
     start: u32,
-    end: u32,
-
-    fn len(self: Range) u32 {
-        if (self.start == self.end) {
-            return 0;
-        }
-
-        return self.end - self.start + 1;
-    }
-
-    fn contains(self: Range, value: u32) bool {
-        return value >= self.start and value <= self.end;
-    }
-
-    fn overlaps(self: Range, range: Range) bool {
-        return (self.start >= range.start and self.end <= range.end) or self.contains(range.start) or self.contains(range.end);
-    }
-
-    fn overlap(self: Range, other: Range) u32 {
-        return self.overlapRange(other).len();
-    }
-
-    fn overlapRange(self: Range, other: Range) Range {
-        if (!self.overlaps(other)) {
-            return Range{ .start = 0, .end = 0 };
-        }
-
-        if (self.start < other.start) {
-            return Range{ .start = other.start, .end = math.min(self.end, other.end) };
-        } else if (other.start < self.start) {
-            return Range{ .start = self.start, .end = math.min(self.end, other.end) };
-        } else {
-            return Range{ .start = self.start, .end = math.min(self.end, other.end) };
-        }
-    }
+    end: u32
 };
-
-test "Range: overlaps" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 2, .end = 7 };
-
-    try std.testing.expect(range1.overlaps(range2));
-    try std.testing.expect(range2.overlaps(range1));
-}
-
-test "Range: overlaps none" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 6, .end = 7 };
-
-    try std.testing.expect(!range1.overlaps(range2));
-    try std.testing.expect(!range2.overlaps(range1));
-}
-
-test "Range: overlap" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 2, .end = 7 };
-
-    try std.testing.expect(range1.overlap(range2) == 4);
-    try std.testing.expect(range2.overlap(range1) == 4);
-}
-
-test "Range: overlap partial" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 0, .end = 2 };
-
-    try std.testing.expect(range1.overlap(range2) == 3);
-    try std.testing.expect(range2.overlap(range1) == 3);
-}
-
-test "Range: overlap full" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 0, .end = 5 };
-
-    try std.testing.expect(range1.overlap(range2) == 6);
-    try std.testing.expect(range2.overlap(range1) == 6);
-}
-
-test "Range: overlap inside" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 2, .end = 4 };
-
-    //std.debug.print("overlap range: {}, {}\n\n", .{range1.overlap(range2), range2.overlap(range1)});
-
-    try std.testing.expect(range1.overlap(range2) == 3);
-    try std.testing.expect(range2.overlap(range1) == 3);
-}
-
-test "Range: overlap none" {
-    const range1 = Range{ .start = 0, .end = 5 };
-    const range2 = Range{ .start = 12, .end = 20 };
-
-    try std.testing.expect(range1.overlap(range2) == 0);
-    try std.testing.expect(range2.overlap(range1) == 0);
-}
