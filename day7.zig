@@ -64,21 +64,8 @@ fn fuelUsage(crabs: []const u32, position: u32, constant_rate: bool) !u32 {
         if (constant_rate) {
             fuel += distance;
         } else {
-            fuel += summation(distance);
+            fuel += utils.summation(distance);
         }
     }
     return fuel;
-}
-
-fn summation(distance: u32) u32 {
-    return (distance * (distance + 1)) / 2;
-}
-
-test "summation" {
-    try std.testing.expect(summation(0) == 0);
-    try std.testing.expect(summation(1) == 1);
-    try std.testing.expect(summation(2) == 3);
-    try std.testing.expect(summation(3) == 6);
-    try std.testing.expect(summation(4) == 10);
-    try std.testing.expect(summation(5) == 15);
 }
