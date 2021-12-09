@@ -125,3 +125,23 @@ test "summation" {
     try std.testing.expect(summation(4) == 10);
     try std.testing.expect(summation(5) == 15);
 }
+
+pub fn seconds(time: u64) f64 {
+    const t = @intToFloat(f64, time);
+    const ns = @intToFloat(f64, std.time.ns_per_s);
+
+    return t / ns;
+}
+
+pub fn factorial(num: u32) u32 {
+    if (num == 1) return 1;
+    return num * (factorial(num - 1));
+}
+
+test "factorial" {
+    try std.testing.expect(factorial(1) == 1);
+    try std.testing.expect(factorial(2) == 2);
+    try std.testing.expect(factorial(3) == 6);
+    try std.testing.expect(factorial(4) == 24);
+    try std.testing.expect(factorial(5) == 120);
+}

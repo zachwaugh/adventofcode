@@ -2,6 +2,7 @@ const std = @import("std");
 const mem = std.mem;
 const math = std.math;
 const utils = @import("utils.zig");
+const seconds = utils.seconds;
 const allocator = std.heap.page_allocator;
 const print = @import("std").debug.print;
 const Timer = std.time.Timer;
@@ -117,11 +118,4 @@ fn loadData(path: []const u8) ![]const u4 {
     }
 
     return numbers.toOwnedSlice();
-}
-
-fn seconds(time: u64) f64 {
-    const t = @intToFloat(f64, time);
-    const ns = @intToFloat(f64, std.time.ns_per_s);
-
-    return t / ns;
 }
