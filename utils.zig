@@ -145,3 +145,38 @@ test "factorial" {
     try std.testing.expect(factorial(4) == 24);
     try std.testing.expect(factorial(5) == 120);
 }
+
+fn swap(x: *u8, y: *u8) void {
+    var temp: u8 = x.*;
+    x.* = y.*;
+    y.* = temp;
+}
+
+pub fn permutations(string: []u8, n: u32, results: *std.ArrayList([]u8)) void {
+    if (n == 1) {
+        const result = results.allocator.dupe(u8, string) catch unreachable;
+        results.append(result) catch unreachable;
+    } else {
+        var i: u32 = 0;
+
+        while (i < n) {
+            permutations(string, n - 1, results);
+
+            if (n % 2 == 1) {
+                swap(&string[0], &string[n - 1]);
+            } else {
+                swap(&string[i], &string[n - 1]);
+            }
+
+            i += 1;
+        }
+    }
+}
+
+test "permutations" {
+    var array = [_]u8{ 'a', 'b', 'c' };
+    var results = std.ArrayList([]u8).init(std.heap.page_allocator);
+    permutations(&array, array.len, &results);
+
+    try std.testing.expect(results.items.len == factorial(array.len));
+}

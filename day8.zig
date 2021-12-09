@@ -35,13 +35,11 @@ fn puzzle1(entries: []Entry) !void {
 /// - Test: 61229
 /// - Input: 1028926
 fn puzzle2(entries: []Entry) !void {
-    var timer = try Timer.start();
     print("[Day 8/Puzzle 2] processing {d} entries\n", .{entries.len});
-
-    var total: u32 = 0;
-    // Generated and cached via generate_mappings() since it was slow (~20s) to generate
-    const mappings = try utils.readLines(allocator, "data/day8_mappings.txt");
+    var timer = try Timer.start();
+    const mappings = generate_mappings();
     var solved_entries = std.AutoHashMap(usize, void).init(allocator);
+    var total: u32 = 0;
 
     for (mappings) |mapping| {
         for (entries) |entry, entry_index| {
@@ -58,43 +56,11 @@ fn puzzle2(entries: []Entry) !void {
 }
 
 /// Generate all possible mappings for our display
-/// This is a pretty inefficient way to do this since it's using randomness, but works
-fn generate_mappings() ![][]const u8 {
-    var timer = try Timer.start();
-    const alphabet = "abcdefg";
-    const permutations = utils.factorial(alphabet.len);
-    var random = std.rand.DefaultPrng.init(0).random();
-    var mappings = std.StringHashMap(void).init(allocator);
-
-    while (mappings.count() < permutations) {
-        var used = std.AutoHashMap(u8, void).init(allocator);
-        defer used.deinit();
-
-        var mapping = try allocator.alloc(u8, alphabet.len);
-
-        for (alphabet) |_, index| {
-            var letter = random.intRangeAtMost(u8, 'a', 'g');
-            while (used.get(letter) != null) {
-                letter = random.intRangeAtMost(u8, 'a', 'g');
-            }
-
-            try used.put(letter, {});
-            mapping[index] = letter;
-        }
-
-        try mappings.put(mapping, {});
-    }
-
-    var values = std.ArrayList([]const u8).init(allocator);
-    var iterator = mappings.keyIterator();
-
-    while (iterator.next()) |mapping| {
-        try values.append(mapping.*);
-    }
-
-    print("Created {d} unique mappings in {d:.3}\n", .{ values.items.len, utils.seconds(timer.read()) });
-
-    return values.toOwnedSlice();
+fn generate_mappings() [][]const u8 {
+    var alphabet = [_]u8{ 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
+    var mappings = std.ArrayList([]u8).init(allocator);
+    utils.permutations(&alphabet, alphabet.len, &mappings);
+    return mappings.toOwnedSlice();
 }
 
 fn is_valid_mapping(mapping: []const u8, entry: Entry) bool {
