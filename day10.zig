@@ -32,7 +32,7 @@ fn puzzle1(lines: [][]const u8) !void {
                     index += 1;
                 },
                 ')', ']', '}', '>' => {
-                    if (stack.len == 0) {
+                    if (index == 0) {
                         print("Line {d}:{d} - Invalid character! Found closing character with no opening character: {c}\n", .{ line_index, position, character });
                         break;
                     } else {
@@ -90,7 +90,7 @@ fn puzzle2(lines: [][]const u8) !void {
                     index += 1;
                 },
                 ')', ']', '}', '>' => {
-                    if (stack.len == 0) {
+                    if (index == 0) {
                         print("Line {d}:{d} - Invalid character! Found closing character with no opening character: {c}\n", .{ line_index, position, character });
                         break;
                     } else {
@@ -111,7 +111,7 @@ fn puzzle2(lines: [][]const u8) !void {
             }
         }
 
-        if (!corrupt and stack.len > 0) {
+        if (!corrupt and index > 0) {
             const completion_string = try completionString(&stack, index);
             const score = completionStringScore(completion_string);
             try completion_scores.append(score);
