@@ -6,6 +6,7 @@ const utils = @import("utils.zig");
 const allocator = std.heap.page_allocator;
 const print = @import("std").debug.print;
 const asc_u32 = sort.desc(u32);
+const Location = utils.Location;
 
 pub fn main() !void {
     const rows = try loadData("data/day9.txt");
@@ -134,28 +135,3 @@ fn loadData(path: []const u8) ![][]u8 {
 
     return number_lines.toOwnedSlice();
 }
-
-const Location = struct {
-    row: u8,
-    col: u8,
-
-    fn left(self: Location) ?Location {
-        if (self.col == 0) return null;
-        return Location{ .row = self.row, .col = self.col - 1 };
-    }
-
-    fn right(self: Location, rows: [][]u8) ?Location {
-        if (self.col >= rows[self.row].len - 1) return null;
-        return Location{ .row = self.row, .col = self.col + 1 };
-    }
-
-    fn up(self: Location) ?Location {
-        if (self.row == 0) return null;
-        return Location{ .row = self.row - 1, .col = self.col };
-    }
-
-    fn down(self: Location, rows: [][]u8) ?Location {
-        if (self.row >= rows.len - 1) return null;
-        return Location{ .row = self.row + 1, .col = self.col };
-    }
-};

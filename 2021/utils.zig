@@ -180,3 +180,48 @@ test "permutations" {
 
     try std.testing.expect(results.items.len == factorial(array.len));
 }
+
+pub const Location = struct {
+    row: u8,
+    col: u8,
+
+    pub fn left(self: Location) ?Location {
+        if (self.col == 0) return null;
+        return Location{ .row = self.row, .col = self.col - 1 };
+    }
+
+    pub fn right(self: Location, rows: [][]u8) ?Location {
+        if (self.col >= rows[self.row].len - 1) return null;
+        return Location{ .row = self.row, .col = self.col + 1 };
+    }
+
+    pub fn up(self: Location) ?Location {
+        if (self.row == 0) return null;
+        return Location{ .row = self.row - 1, .col = self.col };
+    }
+
+    pub fn down(self: Location, rows: [][]u8) ?Location {
+        if (self.row >= rows.len - 1) return null;
+        return Location{ .row = self.row + 1, .col = self.col };
+    }
+
+    pub fn upLeft(self: Location) ?Location {
+        if (self.col == 0 or self.row == 0) return null;
+        return Location{ .row = self.row - 1, .col = self.col - 1 };
+    }
+
+    pub fn upRight(self: Location, rows: [][]u8) ?Location {
+        if (self.col >= rows[self.row].len - 1 or self.row == 0) return null;
+        return Location{ .row = self.row - 1, .col = self.col + 1 };
+    }
+
+    pub fn downLeft(self: Location, rows: [][]u8) ?Location {
+        if (self.col == 0 or self.row >= rows.len - 1) return null;
+        return Location{ .row = self.row + 1, .col = self.col - 1 };
+    }
+
+    pub fn downRight(self: Location, rows: [][]u8) ?Location {
+        if (self.col >= rows[self.row].len - 1 or self.row >= rows.len - 1) return null;
+        return Location{ .row = self.row + 1, .col = self.col + 1 };
+    }
+};
