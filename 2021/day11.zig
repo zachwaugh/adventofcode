@@ -7,16 +7,17 @@ const print = @import("std").debug.print;
 const Location = utils.Location;
 
 pub fn main() !void {
-    var octopi = try loadData("data/day11.txt");
-    try puzzle1(octopi);
-    try puzzle2();
+    const path = "data/day11.txt";
+    try puzzle1(path);
+    try puzzle2(path);
 }
 
 /// Answers
 /// - Test: 1656
-/// - Input: 
-fn puzzle1(octopi: [][]u8) !void {
-    print("[Day 11/Puzzle 1] processing {d} rows grid\n", .{octopi.len});
+/// - Input: 1652
+fn puzzle1(path: []const u8) !void {
+    var octopi = try loadData(path);
+    print("[Day 11/Puzzle 1] processing {d}x{d} grid\n", .{ octopi.len, octopi[0].len });
 
     var flashes: u32 = 0;
     const steps: u8 = 100;
@@ -53,8 +54,47 @@ fn puzzle1(octopi: [][]u8) !void {
     print("[Day 11/Puzzle 1] total flashes after {d} steps: {d}\n", .{ steps, flashes });
 }
 
-fn puzzle2() !void {
-    print("[Day 11/Puzzle 2] not implemented\n", .{});
+/// Answers
+/// - Test: 195
+/// - Input: 220
+fn puzzle2(path: []const u8) !void {
+    var octopi = try loadData(path);
+    print("[Day 11/Puzzle 2] processing {d}x{d} grid\n", .{ octopi.len, octopi[0].len });
+
+    var step: u8 = 1;
+    var flashed = std.AutoHashMap(Location, void).init(allocator);
+
+    while (true) {
+        // Increase all by 1
+        for (octopi) |row, row_index| {
+            for (row) |octopus, col_index| {
+                octopi[row_index][col_index] = octopus + 1;
+            }
+        }
+
+        // Flash all neighbors
+        for (octopi) |row, row_index| {
+            for (row) |_, col_index| {
+                const location = Location{ .row = @intCast(u8, row_index), .col = @intCast(u8, col_index) };
+                flashOctopus(octopi, location, &flashed);
+            }
+        }
+
+        // Reset values for all flashed octopi
+        var iterator = flashed.keyIterator();
+        while (iterator.next()) |location| {
+            octopi[location.row][location.col] = 0;
+        }
+
+        if (flashed.count() == 100) {
+            break;
+        }
+
+        step += 1;
+        flashed.clearRetainingCapacity();
+    }
+
+    print("[Day 11/Puzzle 1] full flash happened at step {d}\n", .{step});
 }
 
 fn flashOctopus(octopi: [][]u8, location: Location, flashed: *std.AutoHashMap(Location, void)) void {
