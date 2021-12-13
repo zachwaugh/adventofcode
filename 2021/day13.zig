@@ -11,7 +11,7 @@ const print = @import("std").debug.print;
 pub fn main() !void {
     const instructions = try loadData("data/day13.txt");
     try puzzle1(instructions);
-    try puzzle2();
+    try puzzle2(instructions);
 }
 
 /// Answers
@@ -20,28 +20,40 @@ pub fn main() !void {
 fn puzzle1(instructions: Instructions) !void {
     print("[Day 13/Puzzle 1] processing instructions with {d} points, {d} folds\n", .{ instructions.points.len, instructions.folds.len });
     var points = instructions.points;
-
-    for (instructions.folds) |fold_point| {
-        if (fold_point.x == 0 and fold_point.y > 0) {
-            points = try fold(points, fold_point, .up);
-            break;
-        } else if (fold_point.y == 0 and fold_point.x > 0) {
-            points = try fold(points, fold_point, .left);
-            break;
-        } else {
-            print("Invalid fold! {}\n", .{fold});
-            return;
-        }
+    for (instructions.folds) |point| {
+        points = try fold(points, point);
+        break;
     }
 
-    print("[Day 13/Puzzle 2] points after 1 folds: {d}\n", .{points.len});
+    print("[Day 13/Puzzle 1] points after 1 folds: {d}\n", .{points.len});
 }
 
-fn puzzle2() !void {
-    print("[Day 13/Puzzle 2] not implemented\n", .{});
+/// Answers
+/// - Test: O
+/// - Input: CPZLPFZL
+fn puzzle2(instructions: Instructions) !void {
+    print("[Day 13/Puzzle 2] processing instructions with {d} points, {d} folds\n", .{ instructions.points.len, instructions.folds.len });
+    var points = instructions.points;
+    for (instructions.folds) |point| {
+        points = try fold(points, point);
+    }
+
+    print("[Day 13/Puzzle 2] points after {d} folds: {d}\n", .{ instructions.folds.len, points.len });
+    try printPoints(points);
 }
 
-fn fold(points: []Point, fold_point: Point, fold_direction: Fold) ![]Point {
+fn foldDirection(point: Point) Fold {
+    if (point.x == 0 and point.y > 0) {
+        return .up;
+    } else if (point.y == 0 and point.x > 0) {
+        return .left;
+    }
+
+    print("Invalid fold! {}\n", .{fold});
+    std.os.abort();
+}
+
+fn fold(points: []Point, fold_point: Point) ![]Point {
     var folded = ArrayList(Point).init(allocator);
     defer folded.deinit();
 
@@ -52,6 +64,7 @@ fn fold(points: []Point, fold_point: Point, fold_direction: Fold) ![]Point {
     const max_x = findMaxX(points);
     const new_height = max_y - fold_point.y;
     const new_width = max_x - fold_point.x;
+    const fold_direction = foldDirection(fold_point);
 
     for (points) |point| {
         var inserted_point: Point = undefined;
@@ -99,6 +112,37 @@ fn findMaxX(points: []Point) u32 {
     }
 
     return max;
+}
+
+fn printPoints(points: []Point) !void {
+    var map = std.AutoHashMap(Point, void).init(allocator);
+    defer map.deinit();
+
+    for (points) |point| {
+        try map.put(point, {});
+    }
+
+    const max_x = findMaxX(points);
+    const max_y = findMaxY(points);
+
+    var x: u32 = 0;
+    var y: u32 = 0;
+
+    print("\n", .{});
+
+    while (y <= max_y) : (y += 1) {
+        while (x <= max_x) : (x += 1) {
+            const point = Point{ .x = x, .y = y };
+            if (map.get(point) == null) {
+                print(" ", .{});
+            } else {
+                print("*", .{});
+            }
+        }
+
+        print("\n", .{});
+        x = 0;
+    }
 }
 
 fn loadData(path: []const u8) !Instructions {
