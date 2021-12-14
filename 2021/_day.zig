@@ -15,11 +15,13 @@ pub fn main() !void {
 }
 
 fn puzzle1() !void {
-    print("[Day N/Puzzle 1] not implemented\n", .{});
+    var timer = try Timer.start();
+    print("[Day N/Puzzle 1] not implemented in {d}\n", .{utils.seconds(timer.read())});
 }
 
 fn puzzle2() !void {
-    print("[Day N/Puzzle 2] not implemented\n", .{});
+    var timer = try Timer.start();
+    print("[Day N/Puzzle 2] not implemented in {d}\n", .{utils.seconds(timer.read())});
 }
 
 fn loadData(path: []const u8) !void {
