@@ -12,7 +12,7 @@ const print = @import("std").debug.print;
 pub fn main() !void {
     const grid = try loadData("data/day15.txt");
     try puzzle1(grid);
-    try puzzle2();
+    try puzzle2(grid);
 }
 
 /// Answers
@@ -25,9 +25,15 @@ fn puzzle1(grid: [][]const u8) !void {
     print("[Day 15/Puzzle 1] lowest risk level: {d} in {d}\n", .{ risk, utils.seconds(timer.read()) });
 }
 
-fn puzzle2() !void {
+/// Answers
+/// - Test: 315
+/// - Input: 3002
+fn puzzle2(grid: [][]const u8) !void {
     var timer = try Timer.start();
-    print("[Day 15/Puzzle 2] not implemented in {d}\n", .{utils.seconds(timer.read())});
+    const expanded = try expandGrid(grid, 5);
+    print("[Day 15/Puzzle 1] processing grid: {d}x{d}\n", .{ expanded.len, expanded[0].len });
+    const risk = aStar(expanded);
+    print("[Day 15/Puzzle 2] lowest risk level in expanded grid: {d} in {d}\n", .{ risk, utils.seconds(timer.read()) });
 }
 
 /// Ported almost verbatim from https://en.wikipedia.org/wiki/A*_search_algorithm
@@ -110,6 +116,39 @@ fn riskLevel(paths: std.AutoHashMap(Location, Location), current: Location, grid
     }
 
     return risk_level;
+}
+
+fn expandGrid(grid: [][]const u8, factor: u8) ![][]const u8 {
+    const rows = grid.len * factor;
+    const tile_size = grid[0].len;
+    const cols = tile_size * factor;
+    var row: usize = 0;
+    var col: usize = 0;
+    var new = ArrayList([]u8).init(allocator);
+
+    while (row < rows) : (row += 1) {
+        var new_row = try allocator.alloc(u8, cols);
+
+        while (col < cols) : (col += 1) {
+            const row_tile = col / tile_size;
+            const col_tile = row / tile_size;
+            const source_col = col % tile_size;
+            const source_row = row % tile_size;
+            const source = grid[source_row][source_col];
+            const new_val = @intCast(u8, source + row_tile + col_tile);
+
+            if (new_val > 9) {
+                new_row[col] = new_val - 9;
+            } else {
+                new_row[col] = new_val;
+            }
+        }
+
+        try new.append(new_row);
+        col = 0;
+    }
+
+    return new.toOwnedSlice();
 }
 
 fn loadData(path: []const u8) ![][]const u8 {

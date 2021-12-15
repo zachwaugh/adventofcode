@@ -182,8 +182,8 @@ test "permutations" {
 }
 
 pub const Location = struct {
-    row: u8,
-    col: u8,
+    row: u32,
+    col: u32,
 
     pub fn start() Location {
         return Location{ .row = 0, .col = 0 };
