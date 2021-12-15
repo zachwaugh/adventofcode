@@ -185,12 +185,28 @@ pub const Location = struct {
     row: u8,
     col: u8,
 
+    pub fn start() Location {
+        return Location{ .row = 0, .col = 0 };
+    }
+
+    pub fn end(grid: [][]const u8) Location {
+        return Location{ .row = grid.len - 1, .col = grid[0].len - 1 };
+    }
+
+    pub fn isStart(self: Location) bool {
+        return self.row == 0 and self.col == 0;
+    }
+
+    pub fn isEnd(self: Location, grid: [][]const u8) bool {
+        return self.row == grid.len - 1 and self.col == grid[0].len - 1;
+    }
+
     pub fn left(self: Location) ?Location {
         if (self.col == 0) return null;
         return Location{ .row = self.row, .col = self.col - 1 };
     }
 
-    pub fn right(self: Location, rows: [][]u8) ?Location {
+    pub fn right(self: Location, rows: [][]const u8) ?Location {
         if (self.col >= rows[self.row].len - 1) return null;
         return Location{ .row = self.row, .col = self.col + 1 };
     }
@@ -200,7 +216,7 @@ pub const Location = struct {
         return Location{ .row = self.row - 1, .col = self.col };
     }
 
-    pub fn down(self: Location, rows: [][]u8) ?Location {
+    pub fn down(self: Location, rows: [][]const u8) ?Location {
         if (self.row >= rows.len - 1) return null;
         return Location{ .row = self.row + 1, .col = self.col };
     }
@@ -210,12 +226,12 @@ pub const Location = struct {
         return Location{ .row = self.row - 1, .col = self.col - 1 };
     }
 
-    pub fn upRight(self: Location, rows: [][]u8) ?Location {
+    pub fn upRight(self: Location, rows: [][]const u8) ?Location {
         if (self.col >= rows[self.row].len - 1 or self.row == 0) return null;
         return Location{ .row = self.row - 1, .col = self.col + 1 };
     }
 
-    pub fn downLeft(self: Location, rows: [][]u8) ?Location {
+    pub fn downLeft(self: Location, rows: [][]const u8) ?Location {
         if (self.col == 0 or self.row >= rows.len - 1) return null;
         return Location{ .row = self.row + 1, .col = self.col - 1 };
     }
@@ -223,5 +239,31 @@ pub const Location = struct {
     pub fn downRight(self: Location, rows: [][]u8) ?Location {
         if (self.col >= rows[self.row].len - 1 or self.row >= rows.len - 1) return null;
         return Location{ .row = self.row + 1, .col = self.col + 1 };
+    }
+
+    pub fn neighbors(self: Location, grid: [][]const u8, allocator: *std.mem.Allocator) ![]Location {
+        var locations = std.ArrayList(Location).init(allocator);
+
+        if (self.down(grid)) |loc| {
+            try locations.append(loc);
+        }
+
+        if (self.right(grid)) |loc| {
+            try locations.append(loc);
+        }
+
+        if (self.left()) |loc| {
+            try locations.append(loc);
+        }
+
+        if (self.up()) |loc| {
+            try locations.append(loc);
+        }
+
+        return locations.toOwnedSlice();
+    }
+
+    pub fn eql(self: Location, other: Location) bool {
+        return self.row == other.row and self.end == other.end;
     }
 };
