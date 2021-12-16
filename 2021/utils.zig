@@ -53,8 +53,8 @@ pub fn parseNumberLine(comptime T: type, allocator: *std.mem.Allocator, line: []
 }
 
 /// Sum an array of integers
-pub fn sum(array: []const u32) u32 {
-    var result: u32 = 0;
+pub fn sum(comptime T: type, array: []const T) T {
+    var result: T = 0;
     for (array) |value| {
         result += value;
     }
@@ -64,9 +64,18 @@ pub fn sum(array: []const u32) u32 {
 
 test "sum" {
     const numbers = [_]u32{ 1, 2, 3, 4, 5 };
-    const total = sum(&numbers);
+    const total = sum(u32, &numbers);
 
     try std.testing.expect(total == 15);
+}
+
+pub fn product(comptime T: type, array: []const T) T {
+    var result: T = 1;
+    for (array) |number| {
+        result *= number;
+    }
+
+    return result;
 }
 
 /// Average of array of numbers
@@ -75,10 +84,10 @@ pub fn average(array: []const u32) u32 {
     return total / @intCast(u32, array.len);
 }
 
-pub fn min(array: []const u32) u32 {
+pub fn min(comptime T: type, array: []const T) T {
     if (array.len == 0) return 0;
 
-    var minimum: u32 = array[0];
+    var minimum: T = array[0];
 
     for (array) |number| {
         if (number < minimum) {
@@ -91,13 +100,13 @@ pub fn min(array: []const u32) u32 {
 
 test "min" {
     const array = [_]u32{ 4, 100, 5, 20, 2, 1, 8, 50 };
-    try std.testing.expect(min(&array) == 1);
+    try std.testing.expect(min(u32, &array) == 1);
 }
 
-pub fn max(array: []const u32) u32 {
+pub fn max(comptime T: type, array: []const T) T {
     if (array.len == 0) return 0;
 
-    var maximum: u32 = array[0];
+    var maximum: T = array[0];
 
     for (array) |number| {
         if (number > maximum) {
@@ -110,7 +119,7 @@ pub fn max(array: []const u32) u32 {
 
 test "max" {
     const array = [_]u32{ 4, 100, 5, 20, 2, 1, 8, 50 };
-    try std.testing.expect(max(&array) == 100);
+    try std.testing.expect(max(u32, &array) == 100);
 }
 
 pub fn summation(distance: u32) u32 {

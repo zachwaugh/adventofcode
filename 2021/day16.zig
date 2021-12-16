@@ -1,4 +1,5 @@
 const std = @import("std");
+const assert = std.debug.assert;
 const mem = std.mem;
 const math = std.math;
 const fmt = std.fmt;
@@ -11,52 +12,56 @@ const print = @import("std").debug.print;
 
 pub fn main() !void {
     const bytes = try loadData("data/day16.txt");
-    try puzzle1(bytes);
-    try puzzle2();
+    const bits = try convertToBits(bytes);
+    try puzzle1(bits);
+    try puzzle2(bits);
 }
 
 /// Answers
 /// - Test: 31
 /// - Input: 977
-fn puzzle1(bytes: []u4) !void {
+fn puzzle1(bits: []u1) !void {
     var timer = try Timer.start();
-    const bits = try convertToBits(bytes);
     print("[Day 16/Puzzle 1] processing input: {d} bits\n", .{bits.len});
-    var versions: u32 = 0;
-    _ = try readPacket(bits, &versions);
+    var index: usize = 0;
+    const packet = try readPacket(bits, &index);
+    const versions = packet.versions();
     print("[Day 16/Puzzle 1] {d} total versions in {d}\n", .{ versions, utils.seconds(timer.read()) });
 }
 
-fn puzzle2() !void {
+/// Answers
+/// - Input: 101501020883
+fn puzzle2(bits: []u1) !void {
     var timer = try Timer.start();
-    print("[Day 16/Puzzle 2] not implemented in {d}\n", .{utils.seconds(timer.read())});
+    print("[Day 16/Puzzle 2] processing input: {d} bits\n", .{bits.len});
+    var index: usize = 0;
+    const packet = try readPacket(bits, &index);
+    const result = packet.evaluate();
+    print("[Day 16/Puzzle 1] result = {d} in {d}\n", .{ result, utils.seconds(timer.read()) });
 }
 
-fn readPacket(bits: []u1, versions: *u32) AllocatorError!usize {
-    var index: usize = 0;
-    const version = try readNum(bits, &index, 3);
-    const kind = try readNum(bits, &index, 3);
-    versions.* += version;
+fn readPacket(bits: []u1, index: *usize) AllocatorError!Packet {
+    const version = try readNum(bits, index, 3);
+    const operation = @intToEnum(Operation, try readNum(bits, index, 3));
 
-    switch (kind) {
-        4 => {
-            index += try readNumberPacket(bits[index..]);
+    switch (operation) {
+        Operation.number => {
+            const number = try readNumberPacketValue(bits, index);
+            return Packet{ .version = version, .operation = .number, .value = number };
         },
         else => {
-            index += try readOperatorPacket(bits[index..], versions);
+            const sub_packets = try readOperatorSubPackets(bits, index);
+            return Packet{ .version = version, .operation = operation, .packets = sub_packets };
         },
     }
-
-    return index;
 }
 
-fn readNumberPacket(bits: []u1) !usize {
-    var index: usize = 0;
+fn readNumberPacketValue(bits: []u1, index: *usize) !u64 {
     var num_bits = ArrayList(u1).init(allocator);
     defer num_bits.deinit();
 
-    while (index < bits.len - 1) {
-        const group = readBits(bits, &index, 5);
+    while (index.* < bits.len - 1) {
+        const group = readBits(bits, index, 5);
 
         // First bit indicates status
         try num_bits.append(group[1]);
@@ -67,32 +72,31 @@ fn readNumberPacket(bits: []u1) !usize {
         if (group[0] == 0) break;
     }
 
-    //const num = try toNum(num_bits.toOwnedSlice());
-    //print("  => {d}\n", .{num});
-
-    return index;
+    return try toNum(num_bits.toOwnedSlice());
 }
 
-fn readOperatorPacket(bits: []u1, versions: *u32) !usize {
-    var index: usize = 0;
-    const length_type = readBit(bits, &index);
+fn readOperatorSubPackets(bits: []u1, index: *usize) ![]Packet {
+    var packets = ArrayList(Packet).init(allocator);
+    defer packets.deinit();
+
+    const length_type = readBit(bits, index);
 
     if (length_type == 0) {
-        const sub_packet_bit_count = try readNum(bits, &index, 15);
-        const sub_packets = readBits(bits, &index, sub_packet_bit_count);
+        const sub_packet_bit_count = try readNum(bits, index, 15);
+        const sub_packets = readBits(bits, index, sub_packet_bit_count);
         var sub_index: usize = 0;
         while (sub_index < sub_packet_bit_count) {
-            sub_index += try readPacket(sub_packets[sub_index..], versions);
+            try packets.append(try readPacket(sub_packets, &sub_index));
         }
     } else {
-        const remaining_packets = try readNum(bits, &index, 11);
+        const remaining_packets = try readNum(bits, index, 11);
         var read_packets: usize = 0;
         while (read_packets < remaining_packets) : (read_packets += 1) {
-            index += try readPacket(bits[index..], versions);
+            try packets.append(try readPacket(bits, index));
         }
     }
 
-    return index;
+    return packets.toOwnedSlice();
 }
 
 fn readBit(bits: []u1, index: *usize) u1 {
@@ -108,22 +112,92 @@ fn readBits(bits: []u1, index: *usize, len: usize) []u1 {
     return bits[start..end];
 }
 
-fn readNum(bits: []u1, index: *usize, len: usize) !u32 {
+fn readNum(bits: []u1, index: *usize, len: usize) !u64 {
     return try toNum(readBits(bits, index, len));
 }
 
-const OperatorResult = struct { num: u32, bits: bool };
+const Packet = struct {
+    version: u64,
+    operation: Operation,
+    packets: ?[]Packet = null,
+    value: ?u64 = null,
+
+    fn evaluate(self: Packet) u64 {
+        const values = self.sub_values();
+        switch (self.operation) {
+            .sum => {
+                assert(values.len > 0);
+                return utils.sum(u64, values);
+            },
+            .product => {
+                assert(values.len > 0);
+                return utils.product(u64, values);
+            },
+            .minimum => {
+                assert(values.len > 0);
+                return utils.min(u64, values);
+            },
+            .maximum => {
+                assert(values.len > 0);
+                return utils.max(u64, values);
+            },
+            .lessThan => {
+                assert(values.len == 2);
+                return if (values[0] < values[1]) 1 else 0;
+            },
+            .greaterThan => {
+                assert(values.len == 2);
+                return if (values[0] > values[1]) 1 else 0;
+            },
+            .equalTo => {
+                assert(values.len == 2);
+                return if (values[0] == values[1]) 1 else 0;
+            },
+            .number => {
+                assert(values.len == 1);
+                return values[0];
+            },
+        }
+    }
+
+    fn sub_values(self: Packet) []u64 {
+        var values = ArrayList(u64).init(allocator);
+        if (self.packets) |packets| {
+            for (packets) |packet| {
+                values.append(packet.evaluate()) catch unreachable;
+            }
+        } else if (self.value) |value| {
+            values.append(value) catch unreachable;
+        }
+
+        return values.toOwnedSlice();
+    }
+
+    fn versions(self: Packet) u64 {
+        var total: u64 = self.version;
+
+        if (self.packets) |packets| {
+            for (packets) |packet| {
+                total += packet.versions();
+            }
+        }
+
+        return total;
+    }
+};
+
+const Operation = enum(u8) { sum, product, minimum, maximum, number, greaterThan, lessThan, equalTo };
 
 const ParseErrors = error{
     Invalid,
 };
 
-fn toNum(bits: []const u1) !u32 {
-    var num: u32 = 0;
+fn toNum(bits: []const u1) !u64 {
+    var num: u64 = 0;
     var index: usize = 0;
     while (index < bits.len) : (index += 1) {
-        const value = @intCast(u32, bits[index]);
-        num |= value << @intCast(u5, bits.len - 1 - index);
+        const value = @intCast(u64, bits[index]);
+        num |= value << @intCast(u6, bits.len - 1 - index);
     }
 
     return num;
