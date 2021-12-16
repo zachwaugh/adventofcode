@@ -31,75 +31,52 @@ fn puzzle1(grid: [][]const u8) !void {
 fn puzzle2(grid: [][]const u8) !void {
     var timer = try Timer.start();
     const expanded = try expandGrid(grid, 5);
-    print("[Day 15/Puzzle 1] processing grid: {d}x{d}\n", .{ expanded.len, expanded[0].len });
+    print("[Day 15/Puzzle 2] processing grid: {d}x{d}\n", .{ expanded.len, expanded[0].len });
     const risk = aStar(expanded);
     print("[Day 15/Puzzle 2] lowest risk level in expanded grid: {d} in {d}\n", .{ risk, utils.seconds(timer.read()) });
 }
 
 /// Ported almost verbatim from https://en.wikipedia.org/wiki/A*_search_algorithm
+/// and https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 fn aStar(grid: [][]const u8) !?u32 {
     const start = Location.start();
     const max_score = std.math.maxInt(u32);
 
-    var open_set = std.AutoHashMap(Location, void).init(allocator);
-    defer open_set.deinit();
-    try open_set.put(start, {});
+    var priority_queue = std.PriorityQueue(QueueItem, compare).init(allocator);
+    defer priority_queue.deinit();
+    try priority_queue.add(QueueItem{ .location = start, .risk = 0 });
 
     var paths = std.AutoHashMap(Location, Location).init(allocator);
     defer paths.deinit();
 
-    var g_score = std.AutoHashMap(Location, u32).init(allocator);
-    defer g_score.deinit();
-    try g_score.put(start, 0);
+    var scores = std.AutoHashMap(Location, u32).init(allocator);
+    defer scores.deinit();
+    try scores.put(start, 0);
 
-    var f_score = std.AutoHashMap(Location, u32).init(allocator);
-    defer f_score.deinit();
-    try f_score.put(start, 0);
-
-    while (open_set.count() > 0) {
-        var current = findLowest(open_set, f_score);
+    while (priority_queue.count() > 0) {
+        var item = priority_queue.remove();
+        const current = item.location;
 
         if (current.isEnd(grid)) {
             return riskLevel(paths, current, grid);
         }
 
-        _ = open_set.remove(current);
-
         const neighbors = try current.neighbors(grid, allocator);
         for (neighbors) |neighbor| {
-            const current_score = g_score.get(current) orelse max_score;
-            const neighbor_score = g_score.get(neighbor) orelse max_score;
+            const current_score = scores.get(current) orelse max_score;
+            const neighbor_score = scores.get(neighbor) orelse max_score;
             const risk = grid[neighbor.row][neighbor.col];
-            const tentative_gscore = current_score + risk;
+            const tentative_score = current_score + risk;
 
-            if (tentative_gscore < neighbor_score) {
+            if (tentative_score < neighbor_score) {
                 try paths.put(neighbor, current);
-                try g_score.put(neighbor, tentative_gscore);
-                try f_score.put(neighbor, tentative_gscore);
-                try open_set.put(neighbor, {});
+                try scores.put(neighbor, tentative_score);
+                try priority_queue.add(QueueItem{ .location = neighbor, .risk = tentative_score });
             }
         }
     }
 
     return null;
-}
-
-fn findLowest(set: std.AutoHashMap(Location, void), scores: std.AutoHashMap(Location, u32)) Location {
-    var current: Location = undefined;
-    var low_value: u32 = std.math.maxInt(u32);
-
-    var iterator = set.keyIterator();
-    while (iterator.next()) |key| {
-        const location = key.*;
-        if (scores.get(location)) |score| {
-            if (score <= low_value) {
-                low_value = score;
-                current = location;
-            }
-        }
-    }
-
-    return current;
 }
 
 fn riskLevel(paths: std.AutoHashMap(Location, Location), current: Location, grid: [][]const u8) u32 {
@@ -149,6 +126,18 @@ fn expandGrid(grid: [][]const u8, factor: u8) ![][]const u8 {
     }
 
     return new.toOwnedSlice();
+}
+
+const QueueItem = struct { location: Location, risk: u32 };
+
+fn compare(item1: QueueItem, item2: QueueItem) math.Order {
+    if (item1.risk < item2.risk) {
+        return .lt;
+    } else if (item1.risk > item2.risk) {
+        return .gt;
+    } else {
+        return .eq;
+    }
 }
 
 fn loadData(path: []const u8) ![][]const u8 {
