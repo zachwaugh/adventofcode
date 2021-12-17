@@ -11,12 +11,12 @@ const print = @import("std").debug.print;
 pub fn main() !void {
     // TEST: target area: x=20..30, y=-10..-5
     //const target = Target{ .min_x = 20, .max_x = 30, .min_y = -10, .max_y = -5 };
-    
+
     // INPUT: target area: x=248..285, y=-85..-56
     const target = Target{ .min_x = 248, .max_x = 285, .min_y = -85, .max_y = -56 };
-    
+
     try puzzle1(target);
-    try puzzle2();
+    try puzzle2(target);
 }
 
 /// Answers
@@ -25,38 +25,71 @@ pub fn main() !void {
 fn puzzle1(target: Target) !void {
     var timer = try Timer.start();
     print("[Day 17/Puzzle 1] finding velocity to target: {}\n", .{target});
-
     const velocity = findVelocity(target);
     print("[Day 17/Puzzle 1] velocity found: {} in {d}\n", .{ velocity, utils.seconds(timer.read()) });
 }
 
-fn puzzle2() !void {
+/// Answers
+/// - Test: 112
+/// - Input: 1919
+fn puzzle2(target: Target) !void {
     var timer = try Timer.start();
-    print("[Day 17/Puzzle 2] not implemented in {d}\n", .{utils.seconds(timer.read())});
+    print("[Day 17/Puzzle 2] finding all velocities to target: {}\n", .{target});
+    const velocities = findAllVelocities(target);
+    print("[Day 17/Puzzle 2] {d} velocities found in {d}\n", .{ velocities, utils.seconds(timer.read()) });
 }
 
 fn findVelocity(target: Target) !?Point {
+    const max_x: i32 = 100;
+    const max_y: i32 = 100;
+    const min_y: i32 = -100;
+
     var x: i32 = 0;
-    var y: i32 = -100;
+    var y: i32 = min_y;
     var best_y: i32 = 0;
     var best_velocity: ?Point = null;
 
-    while (x < 100) : (x += 1) {
-        while (y < 100) : (y += 1) {
+    while (x < max_x) : (x += 1) {
+        while (y < max_y) : (y += 1) {
             const velocity = Point{ .x = x, .y = y };
-            if (checkVelocity(velocity, target)) |max_y| {
-                if (max_y > best_y) {
-                    best_y = max_y;
+            if (checkVelocity(velocity, target)) |velocity_max_y| {
+                if (velocity_max_y > best_y) {
+                    best_y = velocity_max_y;
                     best_velocity = velocity;
                 }
             }
         }
 
-        y = -100;
+        y = min_y;
     }
 
     print("Max y of {d} reached with {}\n", .{ best_y, best_velocity });
     return best_velocity;
+}
+
+fn findAllVelocities(target: Target) !u32 {
+    // These numbers are guesses for the bounds,
+    // but would be better to narrow it down
+    const max_x: i32 = 1000;
+    const max_y: i32 = 1000;
+    const min_y: i32 = -1000;
+
+    var x: i32 = 0;
+    var y: i32 = min_y;
+    var count: u32 = 0;
+
+    while (x < max_x) : (x += 1) {
+        while (y < max_y) : (y += 1) {
+            const velocity = Point{ .x = x, .y = y };
+            if (checkVelocity(velocity, target) != null) {
+                count += 1;
+            }
+        }
+
+        y = min_y;
+    }
+
+    return count;
 }
 
 fn checkVelocity(velocity: Point, target: Target) ?i32 {
