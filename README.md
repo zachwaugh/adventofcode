@@ -2,7 +2,7 @@
 - https://adventofcode.com/
 
 ## 2022
-For 2022, back to what I know and doing it in Swift. All code here [2022](/2022/AdventOfCode/Source/), open `AdventOfCode.xcodeproj` and run. Alter the puzzle in `main.swift` to do different days.
+For 2022, back to what I know and doing it in Swift. All code here [2022](/2022/Source/), open `AdventOfCode.xcodeproj` and run. Alter the puzzle in `main.swift` to do different days.
 
 
 ## 2021

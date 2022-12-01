@@ -28,7 +28,7 @@
 		920235752938FCC400DA9559 /* AdventOfCode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AdventOfCode; sourceTree = BUILT_PRODUCTS_DIR; };
 		920235782938FCC400DA9559 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		920235802938FD2300DA9559 /* Day1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day1.swift; sourceTree = "<group>"; };
-		920235822938FD5600DA9559 /* day1_puzzle1_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day1_puzzle1_input.txt; sourceTree = "<group>"; };
+		920235822938FD5600DA9559 /* day1.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day1.txt; sourceTree = "<group>"; };
 		920235842938FE0400DA9559 /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -72,7 +72,7 @@
 		920235832938FDFC00DA9559 /* Input */ = {
 			isa = PBXGroup;
 			children = (
-				920235822938FD5600DA9559 /* day1_puzzle1_input.txt */,
+				920235822938FD5600DA9559 /* day1.txt */,
 				920235842938FE0400DA9559 /* Input.swift */,
 			);
 			path = Input;
