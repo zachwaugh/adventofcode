@@ -3,8 +3,8 @@ import Foundation
 struct Input {
     private static let directory = URL(fileURLWithPath: "\(NSHomeDirectory())/code/adventofcode/2022/Source/Input/")
 
-    static func day1() throws -> String {
-        try String(contentsOf: url(for: "day1.txt"))
+    static func data(for file: String) throws -> String {
+        try String(contentsOf: url(for: file))
     }
 
     private static func url(for file: String) -> URL {

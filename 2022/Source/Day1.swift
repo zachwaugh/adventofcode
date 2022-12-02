@@ -21,7 +21,7 @@ struct Day1 {
 
     private func elves() throws -> [Int] {
         try Input
-            .day1()
+            .data(for: "day1.txt")
             .components(separatedBy: "\n\n")
             .map {
                 total($0.components(separatedBy: "\n"))
