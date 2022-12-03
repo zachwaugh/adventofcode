@@ -19,10 +19,29 @@ struct Day3 {
         print("[Day 3/Puzzle 1] answer: \(answer)")
     }
 
+    /// Answer: 2425
     func puzzle2() throws {
         print("[Day 3/Puzzle 2] processing...")
-        print("[Day 3/Puzzle 2] answer: ????")
+        let rucksacks = try Input.data(for: "day3.txt")
+            .components(separatedBy: "\n")
 
+        var groups: [[String]] = []
+        for index in stride(from: 0, to: rucksacks.count, by: 3) {
+            groups.append(Array(rucksacks[index..<index+3]))
+        }
+
+        let answer = groups
+            .map { group in
+                let elf1 = Set(group[0])
+                let elf2 = Set(group[1])
+                let elf3 = Set(group[2])
+                return elf1.intersection(elf2).intersection(elf3)
+            }
+            .reduce(0) { result, set in
+                assert(set.count == 1)
+                return result + priority(set.first!)
+            }
+        print("[Day 3/Puzzle 2] answer: \(answer)")
     }
 
     // Lowercase item types a through z have priorities 1 through 26.
