@@ -6,13 +6,29 @@ struct Day5 {
     /// Answer: FCVRLMVQP
     func puzzle1() throws {
         print("[Day 5, Puzzle 1] processing...")
+        let answer = try run(reverse: true)
+        print("[Day 5, Puzzle 1] answer: \(answer)")
+    }
+
+    /// Answer: RWLWGJGFD
+    func puzzle2() throws {
+        print("[Day 5, Puzzle 2] processing...")
+        let answer = try run(reverse: false)
+        print("[Day 5, Puzzle 2] answer: \(answer)")
+    }
+
+    private func run(reverse: Bool) throws -> String {
         let lines = try Input.data(for: "day5.txt").components(separatedBy: "\n\n")
         var stacks = parseCrates(lines[0])
         let moves = parseMoves(lines[1])
 
         for move in moves {
-            let crates = stacks[move.source - 1].suffix(move.count).reversed()
-            stacks[move.destination - 1] += crates
+            let crates = stacks[move.source - 1].suffix(move.count)
+            if reverse {
+                stacks[move.destination - 1] += crates.reversed()
+            } else {
+                stacks[move.destination - 1] += crates
+            }
             stacks[move.source - 1].removeLast(move.count)
         }
 
@@ -20,11 +36,7 @@ struct Day5 {
             partialResult += stack.last!
         }
 
-        print("[Day 5, Puzzle 1] answer: \(answer)")
-    }
-
-    func puzzle2() throws {
-        print("[Day 5, Puzzle 2] unimplemented")
+        return answer
     }
 
     private func parseCrates(_ input: String) -> [[String]] {
