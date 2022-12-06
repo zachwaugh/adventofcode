@@ -5,25 +5,32 @@ struct Day6 {
     func puzzle1() throws {
         print("[Day 6, Puzzle 1] processing...")
         let input = try Input.data(for: "day6.txt")
+        let answer = firstRunOfUniqueCharacters(input: input, count: 4)!
+        print("[Day 6, Puzzle 1] answer: \(answer)")
+    }
+
+    /// Answer: 3263
+    func puzzle2() throws {
+        print("[Day 6, Puzzle 2] processing...")
+        let input = try Input.data(for: "day6.txt")
+        let answer = firstRunOfUniqueCharacters(input: input, count: 14)!
+        print("[Day 6, Puzzle 2] answer: \(answer)")
+    }
+
+    private func firstRunOfUniqueCharacters(input: String, count: Int) -> Int? {
         var buffer: [Character] = []
-        var answer = -1
 
         for (index, character) in input.enumerated() {
             buffer.append(character)
-            guard buffer.count == 4 else { continue }
+            guard buffer.count == count else { continue }
 
-            if Set(buffer).count == 4 {
-                answer = index + 1
-                break
+            if Set(buffer).count == count {
+                return index + 1
             } else {
                 buffer.removeFirst()
             }
         }
 
-        print("[Day 6, Puzzle 1] answer: \(answer), letters: \(String(buffer))")
-    }
-
-    func puzzle2() throws {
-        
+        return nil
     }
 }
