@@ -1,5 +1,5 @@
 import Foundation
 
-let day = Day5()
+let day = Day6()
 try day.puzzle1()
 try day.puzzle2()
