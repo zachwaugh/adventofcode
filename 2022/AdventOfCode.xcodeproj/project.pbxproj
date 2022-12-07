@@ -15,6 +15,7 @@
 		9202358E293CDACB00DA9559 /* Day4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9202358D293CDACB00DA9559 /* Day4.swift */; };
 		92023590293E20C400DA9559 /* Day5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9202358F293E20C400DA9559 /* Day5.swift */; };
 		92023593293F726600DA9559 /* Day6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92023592293F726600DA9559 /* Day6.swift */; };
+		920235962940C2A500DA9559 /* Day7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920235952940C2A500DA9559 /* Day7.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +46,8 @@
 		92023591293E21AA00DA9559 /* day5.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day5.txt; sourceTree = "<group>"; };
 		92023592293F726600DA9559 /* Day6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day6.swift; sourceTree = "<group>"; };
 		92023594293F74CD00DA9559 /* day6.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day6.txt; sourceTree = "<group>"; };
+		920235952940C2A500DA9559 /* Day7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day7.swift; sourceTree = "<group>"; };
+		920235972940FA2E00DA9559 /* day7.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day7.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +88,7 @@
 				9202358D293CDACB00DA9559 /* Day4.swift */,
 				9202358F293E20C400DA9559 /* Day5.swift */,
 				92023592293F726600DA9559 /* Day6.swift */,
+				920235952940C2A500DA9559 /* Day7.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -99,6 +103,7 @@
 				9202358C293CDABC00DA9559 /* day4.txt */,
 				92023591293E21AA00DA9559 /* day5.txt */,
 				92023594293F74CD00DA9559 /* day6.txt */,
+				920235972940FA2E00DA9559 /* day7.txt */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -168,6 +173,7 @@
 				9202358A293BB27B00DA9559 /* Day3.swift in Sources */,
 				92023587293A2BE000DA9559 /* Day2.swift in Sources */,
 				920235812938FD2300DA9559 /* Day1.swift in Sources */,
+				920235962940C2A500DA9559 /* Day7.swift in Sources */,
 				920235792938FCC400DA9559 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
