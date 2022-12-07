@@ -8,6 +8,40 @@ struct Day7 {
     func puzzle1() throws {
         print("[Day 7, Puzzle 1] processing...")
         let output = try Input.data(for: "day7.txt").components(separatedBy: "\n")
+        let directories = parseDirectories(from: output)
+        var answer: Int64 = 0
+
+        for directory in directories {
+            let size = totalSize(for: directory.key, in: directories)
+            if size < 100000 {
+                answer += size
+            }
+        }
+        print("[Day 7, Puzzle 1] answer: \(answer)")
+    }
+
+    /// Answer: 13210366
+    func puzzle2() throws {
+        print("[Day 7, Puzzle 2] processing...")
+        let output = try Input.data(for: "day7.txt").components(separatedBy: "\n")
+        let directories = parseDirectories(from: output)
+        let totalDiskSpace: Int64 = 70_000_000
+        let spaceRequired: Int64 = 30_000_000
+        let totalUsedSpace = totalSize(for: "/", in: directories)
+        let spaceNeededToFree = spaceRequired - (totalDiskSpace - totalUsedSpace)
+        var answer = Int64.max
+
+        for directory in directories {
+            let size = totalSize(for: directory.key, in: directories)
+            if size >= spaceNeededToFree, size < answer {
+                answer = size
+            }
+        }
+
+        print("[Day 7, Puzzle 2] answer: \(answer)")
+    }
+
+    private func parseDirectories(from output: [String]) -> Directories {
         var directoryStack: [String] = []
         var lastCommand: String?
         var directories: Directories = [:]
@@ -51,20 +85,7 @@ struct Day7 {
             }
         }
 
-        var answer: Int64 = 0
-
-        for directory in directories {
-            let size = totalSize(for: directory.key, in: directories)
-            if size < 100000 {
-                answer += size
-            }
-        }
-        print("[Day 7, Puzzle 1] answer: \(answer)")
-    }
-
-    func puzzle2() throws {
-        print("[Day 7, Puzzle 2] processing...")
-        print("[Day 7, Puzzle 2] answer: ")
+        return directories
     }
 
     private func path(for directories: [String]) -> String {
