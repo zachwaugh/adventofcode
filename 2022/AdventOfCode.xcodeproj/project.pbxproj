@@ -16,6 +16,7 @@
 		92023590293E20C400DA9559 /* Day5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9202358F293E20C400DA9559 /* Day5.swift */; };
 		92023593293F726600DA9559 /* Day6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92023592293F726600DA9559 /* Day6.swift */; };
 		920235962940C2A500DA9559 /* Day7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920235952940C2A500DA9559 /* Day7.swift */; };
+		920235992942142900DA9559 /* Day8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920235982942142900DA9559 /* Day8.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -48,6 +49,8 @@
 		92023594293F74CD00DA9559 /* day6.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day6.txt; sourceTree = "<group>"; };
 		920235952940C2A500DA9559 /* Day7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day7.swift; sourceTree = "<group>"; };
 		920235972940FA2E00DA9559 /* day7.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day7.txt; sourceTree = "<group>"; };
+		920235982942142900DA9559 /* Day8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day8.swift; sourceTree = "<group>"; };
+		9202359A29421B1500DA9559 /* day8.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = day8.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +92,7 @@
 				9202358F293E20C400DA9559 /* Day5.swift */,
 				92023592293F726600DA9559 /* Day6.swift */,
 				920235952940C2A500DA9559 /* Day7.swift */,
+				920235982942142900DA9559 /* Day8.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -104,6 +108,7 @@
 				92023591293E21AA00DA9559 /* day5.txt */,
 				92023594293F74CD00DA9559 /* day6.txt */,
 				920235972940FA2E00DA9559 /* day7.txt */,
+				9202359A29421B1500DA9559 /* day8.txt */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -167,6 +172,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				920235852938FE0400DA9559 /* Input.swift in Sources */,
+				920235992942142900DA9559 /* Day8.swift in Sources */,
 				92023593293F726600DA9559 /* Day6.swift in Sources */,
 				92023590293E20C400DA9559 /* Day5.swift in Sources */,
 				9202358E293CDACB00DA9559 /* Day4.swift in Sources */,
