@@ -1,6 +1,14 @@
 # Advent of Code solutions
 - https://adventofcode.com/
 
+## 2024
+Using Python. It's one the languages I don't know well at all and have never used in prouction. Like Zig, this is probably bad and non-idiomatic Python. All code here [2024](/2024/), run each day (`python3 day1.py`) to see the output.
+
+
+## 2023
+Didn't have time this year!
+
+
 ## 2022
 For 2022, back to what I know and doing it in Swift. All code here [2022](/2022/Source/), open `AdventOfCode.xcodeproj` and run. Alter the puzzle in `main.swift` to do different days.
 
