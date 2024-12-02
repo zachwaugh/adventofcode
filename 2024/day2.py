@@ -19,7 +19,14 @@ def part1():
     print("[Day 2, part 1] Safe count:", safe_count)
 
 def part2():
-    print("[Day 2, part 2]")
+    reports = load_data()
+    safe_count = 0
+
+    for report in reports:
+        if is_safe_dampener(report):
+            safe_count += 1
+
+    print("[Day 2, part 2] Safe with dampener count:", safe_count)
 
 def is_safe(levels):
     previous_level = None
@@ -47,6 +54,20 @@ def is_safe(levels):
         previous_level = level
 
     return True
+
+def is_safe_dampener(levels):
+    if is_safe(levels):
+        return True
+    else:
+        # Brute force check every permutation of array for safety
+        # Not efficient, but fine for this
+        for index in range(len(levels)):
+            new_levels = levels.copy()
+            del new_levels[index]
+            if is_safe(new_levels):
+                return True
+        
+        return False
 
 def load_data():
     with open('day2.txt', 'r') as file:
