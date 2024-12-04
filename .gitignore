@@ -32,3 +32,6 @@ dump.rdb
 
 # Zig
 zig-cache
+
+# Python
+.ropeproject
