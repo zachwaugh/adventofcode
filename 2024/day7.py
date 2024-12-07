@@ -13,18 +13,26 @@ def part1():
     for line in input.splitlines():
         answer, rest = line.split(":")
         operands = rest.strip().split()
-        if can_solve_equation(operands, int(answer)):
+        if can_solve_equation(operands, ["+", "*"], int(answer)):
             total += int(answer)
 
     print("[Day 7, part 1] total:", total)
 
 
 def part2():
-    print("[Day 7, part 2]")
+    input = load_data()
+
+    total = 0
+    for line in input.splitlines():
+        answer, rest = line.split(":")
+        operands = rest.strip().split()
+        if can_solve_equation(operands, ["+", "*", "||"], int(answer)):
+            total += int(answer)
+
+    print("[Day 7, part 2] total:", total)
 
 
-def can_solve_equation(operands, answer):
-    allowed_operators = ["+", "*"]
+def can_solve_equation(operands, allowed_operators, answer):
     all_operators = list(product(allowed_operators, repeat=len(operands) - 1))
     for operators in all_operators:
         result = solve_equation(operands, operators)
@@ -44,6 +52,8 @@ def solve_equation(operands, operators):
                     result += int(value)
                 case "*":
                     result *= int(value)
+                case "||":
+                    result = int(str(result) + value)
     return result
 
 
