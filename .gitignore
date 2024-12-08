@@ -35,3 +35,4 @@ zig-cache
 
 # Python
 .ropeproject
+__pycache__
