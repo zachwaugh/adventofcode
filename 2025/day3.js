@@ -9,7 +9,7 @@ const puzzle1 = () => {
 
   for (const bank of banks) {
     const batteries = bank.split("").map((b) => parseInt(b));
-    const joltage = highestVoltage(batteries);
+    const joltage = highestVoltage(batteries, 2);
     totalJoltage += joltage;
   }
 
@@ -24,42 +24,18 @@ const puzzle2 = () => {
 
   for (const bank of banks) {
     const batteries = bank.split("").map((b) => parseInt(b));
-    const joltage = highestVoltage2(batteries);
+    const joltage = highestVoltage(batteries, 12);
     totalJoltage += joltage;
   }
 
   console.log("[Day 3, Puzzle 2] Answer:", totalJoltage);
 };
 
-const highestVoltage = (batteries) => {
-  let first = 0;
-  let firstIndex = 0;
-  let second = 0;
-  let endIndex = batteries.length - 1;
-
-  // Find largest first battery that isn't at the end
-  batteries.forEach((battery, index) => {
-    if (battery > first && index !== endIndex) {
-      first = battery;
-      firstIndex = index;
-    }
-  });
-
-  // Find largest second battery after the first
-  batteries.forEach((battery, index) => {
-    if (battery > second && index > firstIndex) {
-      second = battery;
-    }
-  });
-
-  return parseInt(`${first}${second}`);
-};
-
-const highestVoltage2 = (batteries) => {
+const highestVoltage = (batteries, maxLength) => {
   const highestBatteries = [];
 
   let startIndex = 0;
-  let remainingLength = 12;
+  let remainingLength = maxLength;
 
   while (remainingLength > 0) {
     const { number, index } = nextLargestBattery(
