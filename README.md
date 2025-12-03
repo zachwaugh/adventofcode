@@ -1,6 +1,12 @@
 # Advent of Code solutions
 - https://adventofcode.com/
 
+Most years I try to do Advent of Code, at least until I either get too busy with the holidays or I get bored because they stop being fun. Here's my answers for the years where I did it.
+
+## 2025
+Been writing TypeScript at work, so going with JavaScript this year (via Bun, but that's not necessary). Run each day (`bun day1.js`) to see the output.
+
+
 ## 2024
 Using Python. It's one the languages I don't know well at all and have never used in prouction. Like Zig, this is probably bad and non-idiomatic Python. All code here [2024](/2024/), run each day (`python3 day1.py`) to see the output.
 
