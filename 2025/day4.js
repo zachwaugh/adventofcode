@@ -27,11 +27,33 @@ const puzzle1 = () => {
 
 const puzzle2 = () => {
   console.log("[Day 4, Puzzle 2] Starting…");
-  const input = fs.readFileSync("day4-test.txt", "utf8");
+  const input = fs.readFileSync("day4.txt", "utf8");
   const lines = input.trim().split("\n");
-  const result = "";
+  const map = lines.map((l) => l.split(""));
+  let totalCount = 0;
+  let rollsRemoved = false;
 
-  console.log("[Day 4, Puzzle 2] Answer:", result);
+  do {
+    rollsRemoved = false;
+
+    map.forEach((row, y) => {
+      row.forEach((element, x) => {
+        if (element !== "@") {
+          return;
+        }
+
+        const rolls = adjacentRolls(map, x, y);
+
+        if (rolls < 4) {
+          map[y][x] = "x";
+          totalCount++;
+          rollsRemoved = true;
+        }
+      });
+    });
+  } while (rollsRemoved);
+
+  console.log("[Day 4, Puzzle 2] Answer:", totalCount);
 };
 
 const adjacentRolls = (map, x, y) => {
