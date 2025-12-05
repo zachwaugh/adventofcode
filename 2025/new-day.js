@@ -19,3 +19,5 @@ template = template.replaceAll("{{day}}", day);
 console.log(template);
 
 fs.writeFileSync(filename, template);
+fs.writeFileSync(`day${day}-test.txt`, "");
+fs.writeFileSync(`day${day}.txt`, "");
