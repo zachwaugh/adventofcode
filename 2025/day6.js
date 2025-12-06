@@ -8,36 +8,39 @@ const puzzle1 = () => {
   let total = 0;
 
   problems.forEach((problem) => {
-    const result = problem.operands.reduce((accumulator, currentValue) => {
-      switch (problem.operator) {
-        case "+":
-          return accumulator + currentValue;
-        case "-":
-          return accumulator - currentValue;
-        case "*":
-          return accumulator === 0 ? currentValue : accumulator * currentValue;
-        case "/":
-          return accumulator === 0 ? currentValue : accumulator / currentValue;
-        default:
-          console.log(`Unhandled operator! ${problem.operator}`);
-          process.exit(1);
-      }
-    }, 0);
-
-    total += result;
+    total += solve(problem);
   });
 
-  // Correct answer: 6295830249262
+  assert(total == 6295830249262);
   console.log("[Day 6, Puzzle 1] Answer:", total);
 };
 
 const puzzle2 = () => {
   console.log("[Day 6, Puzzle 2] Starting…");
-  const input = fs.readFileSync("day6-test.txt", "utf8");
-  const lines = input.trim().split("\n");
-  const result = "";
+  const input = fs.readFileSync("day6.txt", "utf8");
+  const problems = parseInput2(input);
+  let total = 0;
 
-  console.log("[Day 6, Puzzle 2] Answer:", result);
+  problems.forEach((problem) => {
+    total += solve(problem);
+  });
+
+  assert(total == 9194682052782);
+  console.log("[Day 6, Puzzle 2] Answer:", total);
+};
+
+const solve = (problem) => {
+  return problem.operands.reduce((accumulator, currentValue) => {
+    switch (problem.operator) {
+      case "+":
+        return accumulator + currentValue;
+      case "*":
+        return accumulator === 0 ? currentValue : accumulator * currentValue;
+      default:
+        console.log(`Unhandled operator! ${problem.operator}`);
+        process.exit(1);
+    }
+  }, 0);
 };
 
 const parseInput = (input) => {
@@ -62,6 +65,47 @@ const parseInput = (input) => {
         problems[problemIndex].operator = value;
       }
     });
+  });
+
+  return problems;
+};
+
+const parseInput2 = (input) => {
+  const lines = input.split("\n").filter((line) => line.length > 0);
+  const rows = lines.map((line) => line.split(""));
+  const problems = [
+    {
+      operands: [],
+      operator: "",
+    },
+  ];
+
+  // Transpose into columns
+  const columns = rows[0].map((_) => []);
+  rows.forEach((row) => {
+    row.forEach((char, index) => {
+      columns[index].push(char);
+    });
+  });
+
+  columns.forEach((column) => {
+    const col = column.join("").trim();
+    if (col === "") {
+      problems.push({
+        operands: [],
+        operator: "",
+      });
+      return;
+    }
+
+    const problem = problems.at(-1);
+    const lastChar = col.slice(-1);
+    if (lastChar === "*" || lastChar === "+") {
+      problem.operands.push(parseInt(col.slice(0, -1).trim()));
+      problem.operator = lastChar;
+    } else {
+      problem.operands.push(parseInt(col));
+    }
   });
 
   return problems;
