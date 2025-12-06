@@ -16,8 +16,9 @@ if (fs.existsSync(filename)) {
 
 let template = fs.readFileSync("template.js", "utf8");
 template = template.replaceAll("{{day}}", day);
-console.log(template);
 
 fs.writeFileSync(filename, template);
 fs.writeFileSync(`day${day}-test.txt`, "");
 fs.writeFileSync(`day${day}.txt`, "");
+
+console.log(`Wrote day ${day} files!`);
