@@ -35,16 +35,33 @@ const puzzle1 = () => {
 const puzzle2 = () => {
   console.log("[Day 7, Puzzle 2] Starting…");
   const input = fs.readFileSync("day7-test.txt", "utf8");
-  const lines = input.trim().split("\n");
-  const result = "";
+  const map = input
+    .trim()
+    .split("\n")
+    .map((line) => line.split(""));
 
-  console.log("[Day 7, Puzzle 2] Answer:", result);
+  const startX = map[0].findIndex((c) => c === "S");
+  const totalPaths = traverse(map, startX, 0);
+
+  console.log("[Day 7, Puzzle 2] Answer:", totalPaths);
 };
 
-const print = (map) => {
-  map.forEach((row) => {
-    console.log(row.join(""));
-  });
+const traverse = (map, x, y) => {
+  const maxY = map.length - 1;
+
+  while (y < maxY) {
+    const nextY = y + 1;
+
+    const nextChar = y < maxY ? map[nextY][x] : undefined;
+
+    if (nextChar === "^") {
+      return traverse(map, x - 1, nextY) + traverse(map, x + 1, nextY);
+    }
+
+    y++;
+  }
+
+  return 1;
 };
 
 puzzle1();
