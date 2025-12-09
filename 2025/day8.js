@@ -43,10 +43,49 @@ const puzzle1 = () => {
 
 const puzzle2 = () => {
   console.log("[Day 8, Puzzle 2] Starting…");
-  const input = fs.readFileSync("day8-test.txt", "utf8");
-  const lines = input.trim().split("\n");
-  const result = "";
+  const input = fs.readFileSync("day8.txt", "utf8");
+  const points = input.trim().split("\n");
+  const closestPairs = computeDistances(points);
 
+  let circuits = [];
+  let result = 0;
+
+  closestPairs.every((pair) => {
+    const circuit1 = circuits.find((circuit) => circuit.has(pair.point1));
+    const circuit2 = circuits.find((circuit) => circuit.has(pair.point2));
+
+    if (circuit1 && circuit2) {
+      // Matched two separate circuits, need to merge them
+      // otherwise circuit contains both junction boxes already
+      if (circuit1 !== circuit2) {
+        circuit2.forEach((point) => circuit1.add(point));
+        circuit2.clear();
+      }
+    } else if (circuit1 || circuit2) {
+      // Add to existing circuit
+      const circuit = circuit1 ?? circuit2;
+      circuit.add(pair.point1);
+      circuit.add(pair.point2);
+    } else {
+      // Create new circuit
+      circuits.push(new Set([pair.point1, pair.point2]));
+    }
+
+    circuits = circuits.filter((c) => c.size > 0);
+
+    if (circuits.length === 1 && circuits[0].size === points.length) {
+      const p1 = parsePoint(pair.point1);
+      const p2 = parsePoint(pair.point2);
+      result = p1[0] * p2[0];
+      return false;
+    }
+
+    return true;
+  });
+
+  // Test input
+  //assert(result == 25272);
+  assert(result == 2347225200);
   console.log("[Day 8, Puzzle 2] Answer:", result);
 };
 
@@ -90,5 +129,5 @@ const distance = (point1, point2) => {
   );
 };
 
-puzzle1();
+//puzzle1();
 puzzle2();
